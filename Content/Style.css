@@ -1,0 +1,275 @@
+﻿/* Reset mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+/* Header */
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #ff6b6b, #ffb400);
+    color: white;
+    padding: 10px 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Đảm bảo header luôn ở trên cùng */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-left: 100px;
+}
+
+    .logo img {
+        height: 60px;
+        width: auto;
+        margin-right: 10px;
+    }
+
+.nav-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+    .icon i {
+        font-size: 18px;
+    }
+
+    .icon:hover {
+        color: white;
+        background: #f7d6d6;
+    }
+/* Footer */
+#footer {
+    text-align: center;
+    padding: 10px;
+    background: linear-gradient(to right, #ff6b6b, #ffb400);
+    color: white;
+    margin-top: 20px;
+}
+
+.site-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.user-greeting {
+    padding: 0.5rem 0.75rem;
+    color: white;
+}
+
+.brand-header {
+    background: linear-gradient(to right, #ff6b6b, #ffb400);
+    color: white;
+    padding: 15px 15px;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 8px;
+}
+
+.product-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    overflow-x: auto; /* Hiện thanh cuộn ngang nếu số lượng sản phẩm quá nhiều */
+    white-space: nowrap;
+    scroll-behavior: smooth;
+}
+
+.product-card {
+    flex: 0 0 calc(25% - 15px); /* 4 sản phẩm mỗi hàng */
+    width: 202px;
+    height: 230px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+.product-link {
+    text-decoration: none;
+    color: black;
+    display: block;
+}
+
+.product-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.price {
+    font-size: 15px;
+    font-weight: bold;
+    color: red;
+    margin: 5px 0;
+}
+
+.color-btn.active {
+    background: linear-gradient(to right, #ff6b6b, #ffb400);
+    color: white;
+    border-color: white;
+}
+
+h3 {
+    margin: 10px 0 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:focus {
+        outline: none;
+        text-decoration: none;
+    }
+a:active,
+a:hover {
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+}
+
+.pagination .page-item.active .page-link {
+    background: none;
+    border: none;
+    font-weight: bold;
+}
+
+    .pagination .page-link {
+    color: black;
+    background: none;
+    border: none;
+    font-weight: bold;
+    }
+
+    .pagination .page-item:hover .page-link {
+    background: #f6dbb8;
+    }
+
+.btn1 {
+    background: #fe6161;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 5px;
+}
+.btn1:hover,
+.btn1:active {
+    color: white;
+    font-weight: bold;
+}
+
+.btn2 {
+    background: #fd710d;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 5px;
+}
+.btn2:hover,
+.btn2:active {
+    color: white;
+    font-weight: bold;
+}
+
+
+.banner-section {
+    margin-top: 2rem;
+}
+
+.banner-image img {
+    width: 100%;
+    height: auto;
+}
+
+.feature-box {
+    margin-bottom: 1rem;
+}
+
+.featured-products .img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.table1 {
+    margin: 0 auto;
+    border: none;
+    align-items: center;
+}
+.table1 td {
+    padding: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .logo {
+        margin-left: 0;
+    }
+
+    .nav-icons {
+        justify-content: center;
+        margin-right: 0;
+    }
+
+    .brand-header {
+        font-size: 1rem;
+    }
+
+    .checkbox-item {
+        flex: 0 0 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .site-title {
+        font-size: 1.2rem;
+    }
+
+    .icon {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+    }
+}
