@@ -1,0 +1,244 @@
+<?php
+require '../../config.php';
+
+// Kiểm tra đăng nhập và vai trò
+if (!isset($_SESSION['user']) || $_SESSION['user']['VaiTro'] !== 'AD') {
+    header("HTTP/1.1 400 Bad Request");
+    die("Yêu cầu không hợp lệ!");
+}
+
+$id = isset($_GET['id']) ? $_GET['id'] : null;
+
+// Kiểm tra id
+if (empty($id)) {
+    header("HTTP/1.1 400 Bad Request");
+    die("Yêu cầu không hợp lệ!");
+}
+
+// Lấy thông tin sản phẩm
+$sql = "SELECT MaSP, TenSP, GiaBan, Mota, Ram, DungLuong, HeDieuHanh, MaHSX 
+        FROM SanPham WHERE MaSP = ?";
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Lỗi chuẩn bị truy vấn: " . $conn->error);
+}
+$stmt->bind_param("s", $id);
+if (!$stmt->execute()) {
+    die("Lỗi thực thi truy vấn: " . $stmt->error);
+}
+$result = $stmt->get_result();
+$sanPham = $result->fetch_assoc();
+$stmt->close();
+
+if (!$sanPham) {
+    header("HTTP/1.1 404 Not Found");
+    die("Không tìm thấy sản phẩm!");
+}
+
+// Lấy danh sách hãng sản xuất
+$hangSanXuats = [];
+$result = mysqli_query($conn, "SELECT MaHSX, TenHSX FROM HangSanXuat");
+while ($row = mysqli_fetch_assoc($result)) {
+    $hangSanXuats[$row['MaHSX']] = $row['TenHSX'];
+}
+
+// Xử lý form POST
+$tb = '';
+if (isset($_POST['edit'])) {
+    $maSP = $id;
+    $tenSP = $_POST['TenSP'];
+    $giaBan = (float)$_POST['GiaBan'];
+    $mota = $_POST['Mota'];
+    $ram = (int)$_POST['Ram'];
+    $dungLuong = (int)$_POST['DungLuong'];
+    $heDieuHanh = $_POST['HeDieuHanh'];
+    $maHSX = $_POST['MaHSX'];
+
+    // Cập nhật sản phẩm
+    $sql = "UPDATE SanPham SET TenSP = ?, GiaBan = ?, Mota = ?, Ram = ?, DungLuong = ?, HeDieuHanh = ?, MaHSX = ? 
+            WHERE MaSP = ?";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        $tb = "Lỗi chuẩn bị truy vấn: " . $conn->error;
+    } else {
+        $stmt->bind_param("sdsiisss", $tenSP, $giaBan, $mota, $ram, $dungLuong, $heDieuHanh, $maHSX, $maSP);
+        if ($stmt->execute()) {
+            $stmt->close();
+            header("Location: product_details.php?id=" . $maSP . "&action=edit");
+            exit;
+        } else {
+            $tb = "Lỗi khi cập nhật sản phẩm: " . $stmt->error;
+        }
+        $stmt->close();
+    }
+}
+
+// Xử lý thông tin người dùng
+$nguoiDung = isset($_SESSION['user']) ? "Xin chào, " . htmlspecialchars($_SESSION['user']['HoTen']) : "";
+
+mysqli_close($conn);
+?>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa sản phẩm</title>
+    <link rel="stylesheet" href="../../Content/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../Content/Style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header">
+        <div class="d-flex">
+            <ul class="navbar-nav ml-auto ml-md-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" style="font-size: 20px; margin-left: 30px">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="../admin.php">
+                            <div class="icon" style="color: black">Báo cáo - Thống kê</div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="product.php">
+                            <div class="icon" style="color: black">Quản lý sản phẩm</div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="../Brand/brand.php">
+                            <div class="icon" style="color: black">Quản lý hãng sản xuất</div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="../Color/color.php">
+                            <div class="icon" style="color: black">Quản lý màu sắc</div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="../Account/account.php">
+                            <div class="icon" style="color: black">Quản lý người dùng</div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="../Order/order.php">
+                            <div class="icon" style="color: black">Quản lý đơn hàng</div>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <a href="../admin.php">
+            <div class="logo" style="margin-left: 30px">
+                <img src="../../Images/Banner/logo.jpg" alt="Logo">
+            </div>
+        </a>
+        <div class="d-flex align-items-center ms-auto nav-icons" style="margin-right: 90px">
+            <div class="user-greeting"><?php echo $nguoiDung; ?></div>
+            <a href="../Account/profile.php?id=<?php echo $_SESSION['user']['MaNguoiDung']; ?>" class="icon">
+                <i class="fas fa-user"></i> Hồ sơ
+            </a>
+            <a href="../../logout.php" class="icon">
+                <i class="fas fa-sign-out"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mt-4 d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg pb-4">
+                <div class="card-header brand-header text-center">
+                    Chỉnh sửa thông tin sản phẩm
+                </div>
+                <div class="card-body col-md-8 mx-auto">
+                    <?php if (!empty($tb)): ?>
+                        <div class="alert alert-danger text-center">
+                            <?php echo $tb; ?>
+                        </div>
+                    <?php endif; ?>
+                    <form method="POST">
+                        <input type="hidden" name="MaSP" value="<?php echo $sanPham['MaSP']; ?>">
+                        <table class="table1">
+                            <tr>
+                                <td class="col-md-3"><strong>Mã sản phẩm:</strong></td>
+                                <td>
+                                    <input type="text" class="form-control" value="<?php echo $sanPham['MaSP']; ?>" disabled readonly />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tên sản phẩm:</strong></td>
+                                <td>
+                                    <input type="text" name="TenSP" class="form-control" required 
+                                           value="<?php echo $sanPham['TenSP']; ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Giá bán:</strong></td>
+                                <td>
+                                    <input type="number" name="GiaBan" class="form-control" required min="0"
+                                           value="<?php echo $sanPham['GiaBan']; ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mô tả:</strong></td>
+                                <td>
+                                    <textarea name="Mota" class="form-control" required rows="4"><?php echo $sanPham['Mota']; ?></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>RAM:</strong></td>
+                                <td>
+                                    <input type="number" name="Ram" class="form-control" required min="0"
+                                           value="<?php echo $sanPham['Ram']; ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dung lượng:</strong></td>
+                                <td>
+                                    <input type="number" name="DungLuong" class="form-control" required min="0"
+                                           value="<?php echo $sanPham['DungLuong']; ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hệ điều hành:</strong></td>
+                                <td>
+                                    <input type="text" name="HeDieuHanh" class="form-control" required
+                                           value="<?php echo $sanPham['HeDieuHanh']; ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hãng:</strong></td>
+                                <td>
+                                    <select name="MaHSX" class="form-control" required>
+                                        <option value="">-- Chọn hãng sản xuất --</option>
+                                        <?php
+                                        foreach ($hangSanXuats as $key => $value) {
+                                            $selected = ($key == $sanPham['MaHSX']) ? 'selected' : '';
+                                            echo "<option value='$key' $selected>$value</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="form-group mt-3">
+                            <div class="text-center d-flex justify-content-center gap-2">
+                                <a href="product_details.php?id=<?php echo $id; ?>&action=edit" class="btn1">Quay lại</a>
+                                <input type="submit" name="edit" value="Lưu" class="btn2"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        Copyright © <?php echo date('Y'); ?> - Ego Mobile
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
